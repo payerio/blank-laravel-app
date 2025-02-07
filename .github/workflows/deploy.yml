@@ -13,21 +13,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      name: Deploy Laravel App
-
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
       - name: Install SSH & sshpass
         run: |
           sudo apt update
@@ -58,6 +43,4 @@ jobs:
       - name: Restart Nginx
         run: |
           sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} -p 2222 "sudo systemctl restart nginx"
-
-
 
