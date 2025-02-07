@@ -13,14 +13,21 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Install Dependencies
+      - name: Install SSH & sshpass
         run: |
           sudo apt update
-          sudo apt install -y sshpass
+          sudo apt install -y openssh-client sshpass
 
-      - name: Deploy to Server
+      - name: Set up SSH Key
         run: |
-          sshpass -p "P@ssw0rd" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} -p ${{ secrets.SSH_PORT }} << 'EOF'
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to Server (SSH + Password)
+        run: |
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} -p ${{ secrets.SSH_PORT }} << 'EOF'
           cd /var/www/myapp
           git pull origin main
           composer install --no-dev --optimize-autoloader
@@ -34,7 +41,8 @@ jobs:
 
       - name: Restart Nginx
         run: |
-          sshpass -p "P@ssw0rd" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} -p ${{ secrets.SSH_PORT }} "sudo systemctl restart nginx"
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} -p ${{ secrets.SSH_PORT }} "sudo systemctl restart nginx"
+
 
 
 
