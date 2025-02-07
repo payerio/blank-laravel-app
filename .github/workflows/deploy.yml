@@ -25,6 +25,10 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
 
+      - name: Add Server to Known Hosts
+        run: |
+          ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+
       - name: Deploy to Server (SSH + Password)
         run: |
           sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} -p ${{ secrets.SSH_PORT }} << 'EOF'
@@ -42,7 +46,6 @@ jobs:
       - name: Restart Nginx
         run: |
           sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} -p ${{ secrets.SSH_PORT }} "sudo systemctl restart nginx"
-
 
 
 
