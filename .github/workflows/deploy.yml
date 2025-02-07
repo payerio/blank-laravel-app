@@ -24,11 +24,11 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           # Ensure the correct port and server IP
-          ssh-keyscan -p 2222 159.65.28.61 >> ~/.ssh/known_hosts
+          ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
 
       - name: Deploy to Server (SSH + Password)
         run: |
-          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@159.65.28.61 -p 2222 << 'EOF'
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} -p ${{ secrets.SSH_PORT }} << 'EOF'
           cd /var/www/myapp
           git pull origin main
           composer install --no-dev --optimize-autoloader
@@ -42,6 +42,4 @@ jobs:
 
       - name: Restart Nginx
         run: |
-          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@159.65.28.61 -p 2222 "sudo systemctl restart nginx"
-
-
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} -p ${{ secrets.SSH_PORT }} "sudo systemctl restart nginx"
