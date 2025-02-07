@@ -43,3 +43,5 @@ jobs:
       - name: Restart Nginx
         run: |
           sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@159.65.28.61 -p 2222 "sudo systemctl restart nginx"
+
+
