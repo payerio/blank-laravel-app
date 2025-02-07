@@ -26,19 +26,20 @@ jobs:
           # Ensure the correct port and server IP
           ssh-keyscan -p 2222 159.65.28.61 >> ~/.ssh/known_hosts
 
-      - name: Deploy to Server (SSH + Password)
-        run: |
-          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} -p 2222 << 'EOF'
-          cd /var/www/myapp
-          git pull origin main
-          composer install --no-dev --optimize-autoloader
-          php artisan migrate --force
-          php artisan cache:clear
-          php artisan config:clear
-          php artisan route:clear
-          php artisan key:generate
-          exit
-          EOF
+     - name: Deploy to Server (SSH + Password)
+       run: |
+         sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} -p 2222 << 'EOF'
+         cd /var/www/myapp
+         git pull origin main
+         composer install --no-dev --optimize-autoloader
+         php artisan migrate --force
+         php artisan cache:clear
+         php artisan config:clear
+         php artisan route:clear
+         php artisan key:generate
+         exit
+         EOF
+
 
       - name: Restart Nginx
         run: |
